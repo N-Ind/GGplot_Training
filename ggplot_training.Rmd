@@ -1,0 +1,281 @@
+---
+title: "Data Visualisation with R - An introduction to ggplot"
+author: Nils Indreiten
+date: "`r Sys.Date()`"
+output:
+  rmdformats::readthedown:
+    code_folding: show
+    self_contained: true
+    thumbnails: false
+    lightbox: false
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+# Introduction to ggplot
+
+Load relevant packages and date:
+
+```{r message=FALSE}
+pacman::p_load(tidyverse,lubridate,ggthemes,tidyquant,readr,readxl)
+
+# load data:
+Time_series <- read_csv("Time_series.csv")
+Segment_Redemptions <-
+  read_csv("CUSTOMER_ANALYTICS_SANDBOX_OUTPUT_REW_SEG.csv")
+Redemptions_and_Total_Points <-
+  read_csv("Redemptions_and_Total_Points.csv")
+Sample_data <-
+  read_excel(
+    "Sample_Data.xlsx",
+    col_types = c(
+      "numeric",
+      "numeric",
+      "numeric",
+      "text",
+      "numeric",
+      "date",
+      "numeric",
+      "numeric",
+      "numeric",
+      "numeric",
+      "numeric",
+      "numeric",
+      "numeric"
+    )
+  )
+
+theme_set(theme_bw())
+```
+
+## Anatomy of a ggplot object
+
+GGplot is a grammar of graphics designed for composing graphics by
+combining independent components.
+
+### Step 1: Format Data
+
+Let's do some quick formatting before plotting our data.
+
+```{r}
+# Some data wrangling, for plot prep:
+
+# Filter the Time_series data frame to only include 2022, and reassign
+# it to the same data frame:
+
+Time_series %>% 
+  filter(year(DATE) == 2022) -> Time_series
+```
+
+### Step 2: Plot
+
+## Line Plot
+
+Another type of plot is the line plot, it is great for time series data,
+or data that has a temporal element:
+
+```{r}
+Time_series %>%
+  filter(year(DATE) == 2022) %>% 
+# Canvas
+  ggplot(aes(x = DATE, y = TOTAL_POINTS)) +
+  # Geometries
+  geom_line(size = 1, color="midnightblue") + # Adds a line
+  geom_smooth(method = "lm", se = FALSE) + # Adds a smoothed line
+  # Formatting
+  expand_limits(y = 0) + # Adds 0 to the
+  scale_y_continuous(labels = scales::number_format(scale = 1 / 1e6, suffix = "M")) +
+  labs(
+    title = "Point Redemptions 2022",
+    subtitle = "Trend line indicates downward trend heading into peak season",
+    x = "",
+    y = "Points",
+    caption = "Source: NDWHS_PROD.NDWHS_PL.BURN_FACT"
+  ) +
+  theme_bw() -> g # Assign to an object
+```
+
+Inspect the ggplot element:
+
+```{r}
+# View(g)
+```
+
+# Types of Plots
+
+## The Scatter Plot
+
+The scatter plot is good for exploring the relationship between
+continuous variables. More advanced versions of this plot include the
+lollipop chart. Let's look at the relation between Nectar points and
+value:
+
+```{r}
+# Data Manipulation:
+points_dist <- Redemptions_and_Total_Points %>%
+    
+    select(REDEMPTIONS, TOTAL_POINTS) %>%
+    
+    group_by(REDEMPTIONS) %>%
+    summarize(TOTAL_POINTS= sum(TOTAL_POINTS)) %>%
+    ungroup()
+
+# Scatter Plot
+points_dist %>%
+    
+    ggplot(aes(x = REDEMPTIONS, y = TOTAL_POINTS)) +
+    
+    geom_point(alpha = 0.5, size = 2)+
+  scale_y_continuous(label=scales::comma_format())
+```
+
+## Bar/Column Plot
+
+Bar charts are another great type of chart, particularly for summarizing
+categorical data.
+
+```{r}
+# Some data manipulation first:
+
+Redemptions_by_segment <- Segment_Redemptions %>%
+  
+  select(REWARD_SEGMENT,REDEMPTIONS) %>%
+  
+  group_by(REWARD_SEGMENT) %>%
+  summarize(total_redemptions = sum(REDEMPTIONS)) %>%
+  ungroup()
+
+# Plot the bar:
+
+Redemptions_by_segment %>%
+  filter(REWARD_SEGMENT != is.na(REWARD_SEGMENT)) %>% 
+  mutate(REWARD_SEGMENT = REWARD_SEGMENT %>% as_factor() %>% fct_reorder(total_redemptions)) %>%
+  
+  ggplot(aes(REWARD_SEGMENT, total_redemptions)) +
+  scale_y_continuous(labels= scales::comma_format(), expand = c(0.005,0.005))+
+  geom_col(fill = "#2c3e50") +
+  coord_flip()
+```
+
+## Histogram/Density plots
+
+Another useful type of chart is a histogram or density plot, they are
+useful for inspecting the distribution of a specific variable:
+
+```{r}
+Sample_data %>%
+  ggplot(aes(TRAN_SPEND)) +
+  geom_histogram(bins = 20) +
+  scale_x_continuous(limits = c(0, 140), breaks = seq(0, 140, by = 20)) +
+  #facet_wrap( ~ NECTAR_SEGMENT) + # if we want to do it to all segments.+
+  theme_bw()
+```
+
+In the same family we can consider the box-plot, which is useful for
+comparing distributions across groups:
+
+```{r}
+# Box Plot
+Segment_Redemptions %>%
+  filter(REWARD_SEGMENT != is.na(REWARD_SEGMENT)) %>% 
+    
+    ggplot(aes(fct_reorder(REWARD_SEGMENT, REDEMPTIONS), REDEMPTIONS)) +
+    
+    geom_boxplot() +
+    coord_flip() +
+    theme_tq()+
+    xlab("")+
+  scale_y_continuous(labels = scales::comma_format())
+```
+
+# Formatting
+
+Formatting involves tweaking and perfecting aspects of the visualization
+as you see fit. Formatting the colors of a ggplot object:
+
+```{r}
+Redemptions_by_segment %>%
+  filter(REWARD_SEGMENT != is.na(REWARD_SEGMENT)) %>% 
+  mutate(REWARD_SEGMENT = REWARD_SEGMENT %>% as_factor() %>% fct_reorder(total_redemptions)) %>%
+  
+  ggplot(aes(REWARD_SEGMENT, total_redemptions)) +
+  scale_y_continuous(labels= scales::comma_format(), expand = c(0.005,0.005))+ # Examples of Formatting
+  geom_col(fill = viridisLite::viridis(n = 20)[10])+ # Examples of Formatting
+  coord_flip() # Examples of Formatting
+```
+
+R also provides some functionality to convert color schemes from RGB to
+HEX and vice versa.
+
+```{r}
+# To RGB
+col2rgb("slateblue")
+
+col2rgb("#2C3E50")
+
+# To HEX
+rgb(44, 62, 80, maxColorValue = 255)
+ 
+```
+
+This will be useful when customizing and themeing plots.
+
+# Exercises
+
+Something similar to the others in terms of exercises. Important to
+start with something basic, layers of difficulty as we go on, already
+been done before and tweak. If bar chart, but use this metric instead
+for example. Progressively more difficult. 3 exercises. Find a new
+geom/layer and come up with a new perspective of an existing, tidyverse
+geom documentation.
+
+## Recreating the scatter plot as a bar plot
+
+Recreate the plot in the scatter plot section, however make it a bar
+chart instead. Hint: the data frame you will need to use is
+Segment_Redemptions, fill in the remaining arguments below:
+
+```{r, eval=FALSE}
+points_dist %>% 
+  
+```
+
+## Formatting the plot part 1
+
+Format the y-axis such that the numbers are not in scientific notation.
+Hint: you will need to add the following function to you plot:
+`scale_y_continuous()` and pass a specific value to the label that will
+be the following `scales::comma_format()`. You will need the scales
+package for this to work!
+
+```{r, eval=FALSE}
+Segment_Redemptions %>% 
+ ggplot()+ # Carry on the second argument from part 1.1 
+  + # Geom_layer
+  # scale_y_continuous_layer
+```
+
+If you are struggling with the above try the following link for
+inspiration: <https://scales.r-lib.org/>
+
+## Formatting the plot part 2
+
+Let's continue formatting the plot by adding and formatting the plot
+title and axis titles. This can be done by adding the labs() function to
+the plot layers.
+
+```{r, eval=FALSE}
+# Carry on the layers from the previous 2 exercises and add:
++ labs()
+```
+
+run ?labs() in the console to get an idea for the arguments that need to
+be passed to the function to change the labels.
+
+Finish off the plot by layering a theme onto your plot, call the
+*theme*() family of functions and pick one that you like.
+
+## Conclusions
+
+Can you think of anything else that would make the plot more appealing?

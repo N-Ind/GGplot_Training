@@ -1,0 +1,347 @@
+---
+title: "Anatomy of A ggplot"
+author: "Nils Indreiten"
+format: revealjs
+---
+
+
+```{r setup, include=FALSE}
+pacman::p_load(tidyverse,lubridate,ggthemes,tidyquant,readr,readxl)
+knitr::opts_chunk$set(echo = FALSE)
+Sample_data <-
+  read_excel(
+    "Sample_Data.xlsx",
+    col_types = c(
+      "numeric",
+      "numeric",
+      "numeric",
+      "text",
+      "numeric",
+      "date",
+      "numeric",
+      "numeric",
+      "numeric",
+      "numeric",
+      "numeric",
+      "numeric",
+      "numeric"
+    )
+  )
+
+theme_set(theme_bw())
+```
+
+
+## The final output
+
+```{r,  echo=FALSE, message=FALSE, fig.width=11,fig.height=6}
+Sample_data %>% mutate(
+  date = lubridate::floor_date(DATE_MONTHLY, unit = "month"),
+  m = lubridate::month(date, label = TRUE))%>%
+  select(m, TRAN_SPEND, NECTAR_SEGMENT) %>% 
+  group_by(m, NECTAR_SEGMENT) %>%
+  summarise(spend = sum(TRAN_SPEND)) %>%
+  rename(Segment = NECTAR_SEGMENT) %>% 
+  mutate(Segment = as_factor(Segment)) %>% 
+  ungroup() -> Sample_data
+
+Sample_data %>% ggplot(aes(m,spend,color=Segment, group=Segment))+geom_point()+geom_line()+scale_color_brewer(palette = "Spectral")+tidyquant::theme_tq()+ylab("")+xlab("")+scale_y_continuous(labels = scales::dollar_format(prefix ="£"), limits = c(0,40000))+theme(legend.position = "bottom")+labs(title = "Transaction Spend by Nectar Segment",subtitle = "Segment 2 has the highest transactional spend across all months", caption = "Data source: C3 Interview task data")
+```
+
+## A peak at the data
+
+```{r, echo=FALSE,message=FALSE}
+Sample_data <-
+  read_excel(
+    "Sample_Data.xlsx",
+    col_types = c(
+      "numeric",
+      "numeric",
+      "numeric",
+      "text",
+      "numeric",
+      "date",
+      "numeric",
+      "numeric",
+      "numeric",
+      "numeric",
+      "numeric",
+      "numeric",
+      "numeric"
+    )
+  )
+head(Sample_data) %>% 
+  knitr::kable()
+```
+
+
+## The components of a ggplot object
+
+```{r, echo=FALSE}
+Sample_data %>% mutate(
+  date = lubridate::floor_date(DATE_MONTHLY, unit = "month"),
+  m = lubridate::month(date, label = TRUE))%>%
+  select(m, TRAN_SPEND, NECTAR_SEGMENT) %>% 
+  group_by(m, NECTAR_SEGMENT) %>%
+  summarise(spend = sum(TRAN_SPEND)) %>%
+  rename(Segment = NECTAR_SEGMENT) %>% 
+  mutate(Segment = as_factor(Segment)) %>% 
+  ungroup() -> Sample_data
+
+```
+
+
+```{r, echo=TRUE, eval=FALSE}
+Sample_data %>% 
+  ggplot(aes(m,spend, color=Segment, group=Segment)) + 
+  geom_point()+ 
+  geom_line()+ 
+  scale_color_brewer(palette = "Spectral")+ 
+  tidyquant::theme_tq()+ 
+  scale_y_continuous(labels = scales::dollar_format(prefix ="£"), limits = c(0,40000)) 
+  labs(x="",
+     y="",
+     title = "Transaction Spend by Nectar Segment",
+     subtitle = "Segment 2 has the highest transactional spend across all months",
+     caption = "Data source: C3 Interview task data")+ 
+    theme(legend.position = "bottom") 
+```
+
+## Layer 1 - the data 
+
+A data frame that we pipe into the ggplot function, usually we would engage with 
+data wrangling prior to piping it into `ggplot()`.
+
+```{r, echo=TRUE, eval=FALSE, `code-line-numbers`="1"}
+Sample_data %>% 
+  ggplot(aes(m,spend, color=Segment, group=Segment)) + 
+  geom_point()+ 
+  geom_line()+ 
+  scale_color_brewer(palette = "Spectral")+ 
+  tidyquant::theme_tq()+ 
+  scale_y_continuous(labels = scales::dollar_format(prefix ="£"), limits = c(0,40000 
+  labs(x="",
+     y="",
+     title = "Transaction Spend by Nectar Segment",
+     subtitle = "Segment 2 has the highest transactional spend across all months",
+     caption = "Data source: C3 Interview task data")+ 
+    theme(legend.position = "bottom") 
+```
+
+## Layer 2 -  the canvas
+
+This is where we specify the grid object using the variables of our data frame,
+the general format is `ggplot(aes(x,y,color="",group=""))`.
+
+```{r, echo=TRUE, eval=FALSE, `code-line-numbers`="2"}
+Sample_data %>%
+  ggplot(aes(m,spend, color=Segment, group=Segment)) + 
+  geom_point()+ 
+  geom_line()+ 
+  scale_color_brewer(palette = "Spectral")+ 
+  tidyquant::theme_tq()+ 
+  scale_y_continuous(labels = scales::dollar_format(prefix ="£"), limits = c(0,40000)) 
+  labs(x="",
+     y="",
+     title = "Transaction Spend by Nectar Segment",
+     subtitle = "Segment 2 has the highest transactional spend across all months",
+     caption = "Data source: C3 Interview task data")+ 
+    theme(legend.position = "bottom") 
+```
+
+## Layer 3 - The geometries
+
+The third layer involves defining the type of chart using the `geom_()` family
+of functions, where the underscore is followed by the type of graph. 
+
+
+```{r, echo=TRUE, eval=FALSE, `code-line-numbers`="3-4"}
+Sample_data %>% 
+  ggplot(aes(m,spend, color=Segment, group=Segment)) + 
+  geom_point()+ 
+  geom_line()+ 
+  scale_color_brewer(palette = "Spectral")+ 
+  tidyquant::theme_tq()+ 
+  scale_y_continuous(labels = scales::dollar_format(prefix ="£"), limits = c(0,40000)) 
+  labs(x="",
+     y="",
+     title = "Transaction Spend by Nectar Segment",
+     subtitle = "Segment 2 has the highest transactional spend across all months",
+     caption = "Data source: C3 Interview task data")+ 
+    theme(legend.position = "bottom") 
+```
+
+## Layer 4 and Onwards - Formatting
+
+The remaining lines of code involve specifying different aspects of the visual,
+particularly the themeing and formatting of axes, etc.
+
+```{r, echo=TRUE, eval=FALSE, `code-line-numbers`="5"}
+Sample_data %>% 
+  ggplot(aes(m,spend, color=Segment, group=Segment)) + 
+  geom_point()+ 
+  geom_line()+ 
+  scale_color_brewer(palette = "Spectral")+ 
+  tidyquant::theme_tq()+ 
+  scale_y_continuous(labels = scales::dollar_format(prefix ="£"), limits = c(0,40000)) 
+  labs(x="",
+     y="",
+     title = "Transaction Spend by Nectar Segment",
+     subtitle = "Segment 2 has the highest transactional spend across all months",
+     caption = "Data source: C3 Interview task data")+ 
+    theme(legend.position = "bottom") 
+```
+
+## Layer 4 and Onwards - Formatting
+
+The remaining lines of code involve specifying different aspects of the visual,
+particularly the themeing and formatting of axes, etc.
+
+```{r, echo=TRUE, eval=FALSE, `code-line-numbers`="6"}
+Sample_data %>% 
+  ggplot(aes(m,spend, color=Segment, group=Segment)) + 
+  geom_point()+ 
+  geom_line()+ 
+  scale_color_brewer(palette = "Spectral")+ 
+  tidyquant::theme_tq()+ 
+  scale_y_continuous(labels = scales::dollar_format(prefix ="£"), limits = c(0,40000)) 
+  labs(x="",
+     y="",
+     title = "Transaction Spend by Nectar Segment",
+     subtitle = "Segment 2 has the highest transactional spend across all months",
+     caption = "Data source: C3 Interview task data")+
+    theme(legend.position = "bottom") 
+```
+
+## Layer 4 and Onwards - Formatting
+
+The remaining lines of code involve specifying different aspects of the visual,
+particularly the themeing and formatting of axes, etc.
+
+```{r, echo=TRUE, eval=FALSE, `code-line-numbers`="7"}
+Sample_data %>%
+  ggplot(aes(m,spend, color=Segment, group=Segment)) + 
+  geom_point()+
+  geom_line()+ 
+  scale_color_brewer(palette = "Spectral")+ 
+  tidyquant::theme_tq()+ 
+  scale_y_continuous(labels = scales::dollar_format(prefix ="£"), limits = c(0,40000)) 
+  labs(x="",
+     y="",
+     title = "Transaction Spend by Nectar Segment",
+     subtitle = "Segment 2 has the highest transactional spend across all months",
+     caption = "Data source: C3 Interview task data")+ 
+    theme(legend.position = "bottom") 
+```
+
+## Layer 4 and Onwards - Formatting
+
+The remaining lines of code involve specifying different aspects of the visual,
+particularly the themeing and formatting of axes, etc.
+
+```{r, echo=TRUE, eval=FALSE, `code-line-numbers`="8-13"}
+Sample_data %>% 
+  ggplot(aes(m,spend, color=Segment, group=Segment)) + 
+  geom_point()+
+  geom_line()+ 
+  scale_color_brewer(palette = "Spectral")+ 
+  tidyquant::theme_tq()+ 
+  scale_y_continuous(labels = scales::dollar_format(prefix ="£"), limits = c(0,40000))  
+  labs(x="",
+     y="",
+     title = "Transaction Spend by Nectar Segment",
+     subtitle = "Segment 2 has the highest transactional spend across all months",
+     caption = "Data source: C3 Interview task data")+ 
+    theme(legend.position = "bottom") 
+```
+
+## The DataViz Workflow
+
+::: {.panel-tabset}
+
+### Raw Data
+
+::: {.fragment}
+```{r, echo=FALSE}
+Sample_data <-
+  read_excel(
+    "Sample_Data.xlsx",
+    col_types = c(
+      "numeric",
+      "numeric",
+      "numeric",
+      "text",
+      "numeric",
+      "date",
+      "numeric",
+      "numeric",
+      "numeric",
+      "numeric",
+      "numeric",
+      "numeric",
+      "numeric"
+    )
+  )
+head(Sample_data) %>% 
+  gt::gt()
+```
+:::
+
+### Wrangling
+
+::: {.fragment}
+```{r, echo=TRUE}
+Sample_data %>% mutate(
+  date = lubridate::floor_date(DATE_MONTHLY, unit = "month"),
+  Month = lubridate::month(date, label = TRUE))%>%
+  select(Month, TRAN_SPEND, NECTAR_SEGMENT) %>% 
+  group_by(Month, NECTAR_SEGMENT) %>%
+  summarise(spend = sum(TRAN_SPEND)) %>%
+  rename(Segment = NECTAR_SEGMENT) %>% 
+  mutate(Segment = as_factor(Segment)) %>% 
+  ungroup() -> Sample_data
+```
+:::
+
+### Ggplot
+
+::: {.fragment}
+```{r, echo =TRUE, eval=FALSE}
+Sample_data %>% 
+  ggplot(aes(m,spend, color=Segment, group=Segment)) + 
+  geom_point()+ 
+  geom_line()+ 
+  scale_color_brewer(palette = "Spectral")+ 
+  tidyquant::theme_tq()+ 
+  scale_y_continuous(labels = scales::dollar_format(prefix ="£"), limits = c(0,40000)) 
+  labs(x="",
+     y="",
+     title = "Transaction Spend by Nectar Segment",
+     subtitle = "Segment 2 has the highest transactional spend across all months",
+     caption = "Data source: Snowflake")+ 
+    theme(legend.position = "bottom") 
+```
+:::
+
+### Output
+
+::: {.fragment}
+```{r, echo =FALSE}
+Sample_data %>% 
+  ggplot(aes(Month,spend, color=Segment, group=Segment)) + 
+  geom_point()+ 
+  geom_line()+ 
+  scale_color_brewer(palette = "Spectral")+ 
+  tidyquant::theme_tq()+ 
+  scale_y_continuous(labels = scales::dollar_format(prefix ="£"), limits = c(0,40000))+ 
+  labs(x="",
+     y="",
+     title = "Transaction Spend by Nectar Segment",
+     subtitle = "Segment 2 has the highest transactional spend across all months",
+     caption = "Data source: C3 Interview task data")+ 
+    theme(legend.position = "bottom") 
+```
+:::
+:::
+
+
