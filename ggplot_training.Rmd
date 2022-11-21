@@ -216,36 +216,52 @@ This will be useful when customizing and themeing plots.
 
 # Exercises
 
-## Recreating the scatter plot as a bar plot
+## Number of redemptions by financial period
 
-Recreate the plot in the scatter plot section, however make it a bar
-chart instead. Hint: the data frame you will need to use is
-Segment_Redemptions, fill in the remaining arguments below:
+For this exercise we will create a graph that breaks down the number of
+redemptions by financial period. Hint: the data frame you will need to
+use is Segment_Redemptions, some data wrangling is required, fill in the
+remaining arguments below:
 
 ```{r, eval=FALSE}
-points_dist %>% 
-  
+# Data wrangling:
+Exercise1 <- Segment_Redemptions %>% 
+  group_by(___) %>% #Grouping variable, what is it?
+  summarise(Total_Redemptions = sum(___)) %>%  #What variable are we trying to aggregate?
+  mutate(FIN_PERIOD_NO = as.factor(FIN_PERIOD_NO))
+
 ```
 
-## Formatting the plot part 1
+## 1.1 Building the plot
 
-Format the y-axis such that the numbers are not in scientific notation.
-Hint: you will need to add the following function to you plot:
-`scale_y_continuous()` and pass a specific value to the label that will
-be the following `scales::comma_format()`. You will need the scales
-package for this to work!
+Create the plot for the volume of redemptions by financial period, fill
+in the arguments in the code below:
 
 ```{r, eval=FALSE}
-Segment_Redemptions %>% 
+Exercise1 %>% 
+  ggplot(aes()) %>% # specify the variables you want to visualise
+  geom_col()
+```
+
+## 1.2 Formatting the plot part 1
+
+Format the y-axis such that the numbers have commas. Hint: you will need
+to add the following function to you plot: `scale_y_continuous()` and
+pass a specific value to the label that will be the following
+`scales::comma_format()`. You will need the scales package for this to
+work!
+
+```{r, eval=FALSE}
+Exercise1 %>% 
  ggplot()+ # Carry on the second argument from part 1.1 
-  + # Geom_layer
+ geom_col() + # Geom_layer
   # scale_y_continuous_layer
 ```
 
 If you are struggling with the above try the following link for
 inspiration: <https://scales.r-lib.org/>
 
-## Formatting the plot part 2
+## 1.2 Formatting the plot part 2
 
 Let's continue formatting the plot by adding and formatting the plot
 title and axis titles. This can be done by adding the labs() function to
@@ -265,3 +281,4 @@ Finish off the plot by layering a theme onto your plot, call the
 ## Conclusions
 
 Can you think of anything else that would make the plot more appealing?
+Which financial period had the highest number of redemptions?
