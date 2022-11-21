@@ -15,21 +15,17 @@ editor_options:
 
 # Introduction to ggplot
 
-Load relevant packages and date:
+Load relevant packages:
 
 ```{r message=FALSE}
 pacman::p_load(tidyverse,lubridate,ggthemes,tidyquant,readr,readxl)
 
 # load data:
 Time_series <- read_csv("Time_series.csv")
-Segment_Redemptions <-
-  read_csv("CUSTOMER_ANALYTICS_SANDBOX_OUTPUT_REW_SEG.csv")
-Redemptions_and_Total_Points <-
-  read_csv("Redemptions_and_Total_Points.csv")
-Sample_data <-
-  read_excel(
-    "Sample_Data.xlsx",
-    col_types = c(
+Segment_Redemptions <- read_csv("CUSTOMER_ANALYTICS_SANDBOX_OUTPUT_REW_SEG.csv")
+Redemptions_and_Total_Points <- read_csv("Redemptions_and_Total_Points.csv")
+Sample_data <- read_excel("Sample_Data.xlsx",
+      col_types = c(
       "numeric",
       "numeric",
       "numeric",
@@ -42,9 +38,7 @@ Sample_data <-
       "numeric",
       "numeric",
       "numeric",
-      "numeric"
-    )
-  )
+      "numeric"))
 
 theme_set(theme_bw())
 ```
@@ -92,8 +86,7 @@ Time_series %>%
     x = "",
     y = "Points",
     caption = "Source: NDWHS_PROD.NDWHS_PL.BURN_FACT"
-  ) +
-  theme_bw() -> g # Assign to an object
+  ) -> g # Assign to an object
 ```
 
 Inspect the ggplot element:
@@ -127,7 +120,7 @@ points_dist %>%
     ggplot(aes(x = REDEMPTIONS, y = TOTAL_POINTS)) +
     
     geom_point(alpha = 0.5, size = 2)+
-  scale_y_continuous(label=scales::comma_format())
+    scale_y_continuous(label=scales::comma_format())
 ```
 
 ## Bar/Column Plot
@@ -163,7 +156,7 @@ Redemptions_by_segment %>%
 Another useful type of chart is a histogram or density plot, they are
 useful for inspecting the distribution of a specific variable:
 
-```{r}
+```{r, message=FALSE}
 Sample_data %>%
   ggplot(aes(TRAN_SPEND)) +
   geom_histogram(bins = 20) +
