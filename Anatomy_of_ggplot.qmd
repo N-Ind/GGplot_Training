@@ -1,6 +1,5 @@
 ---
 title: "Anatomy of A ggplot"
-author: "Nils Indreiten"
 format: revealjs
 ---
 
@@ -45,7 +44,7 @@ Sample_data %>% mutate(
   mutate(Segment = as_factor(Segment)) %>% 
   ungroup() -> Sample_data
 
-Sample_data %>% ggplot(aes(m,spend,color=Segment, group=Segment))+geom_point()+geom_line()+scale_color_brewer(palette = "Spectral")+tidyquant::theme_tq()+ylab("")+xlab("")+scale_y_continuous(labels = scales::dollar_format(prefix ="£"), limits = c(0,40000))+theme(legend.position = "bottom")+labs(title = "Transaction Spend by Nectar Segment",subtitle = "Segment 2 has the highest transactional spend across all months", caption = "Data source: C3 Interview task data")
+Sample_data %>% ggplot(aes(m,spend,color=Segment, group=Segment))+geom_point()+geom_line()+scale_color_brewer(palette = "Spectral")+tidyquant::theme_tq()+ylab("")+xlab("")+scale_y_continuous(labels = scales::dollar_format(prefix ="£"), limits = c(0,40000))+theme(legend.position = "bottom")+labs(title = "Transaction Spend by Nectar Segment",subtitle = "Segment 2 has the highest transactional spend across all months", caption = "Data source: Snowflake")
 ```
 
 ## A peak at the data
