@@ -7,7 +7,7 @@
 
         <meta name="author" content="Nils Indreiten" />
     
-        <meta name="date" content="2022-11-21" />
+        <meta name="date" content="2022-11-25" />
     
     <title>Data Visualisation with R - An introduction to ggplot</title>
 
@@ -1377,11 +1377,13 @@ to ggplot</a></h2>
       <li><a href="#formatting" id="toc-formatting">Formatting</a></li>
       <li><a href="#exercises" id="toc-exercises">Exercises</a>
       <ul>
-      <li><a href="#recreating-the-scatter-plot-as-a-bar-plot" id="toc-recreating-the-scatter-plot-as-a-bar-plot">Recreating the
-      scatter plot as a bar plot</a></li>
-      <li><a href="#formatting-the-plot-part-1" id="toc-formatting-the-plot-part-1">Formatting the plot part
+      <li><a href="#number-of-redemptions-by-financial-period" id="toc-number-of-redemptions-by-financial-period">Number of
+      redemptions by financial period</a></li>
+      <li><a href="#building-the-plot" id="toc-building-the-plot">1.1
+      Building the plot</a></li>
+      <li><a href="#formatting-the-plot-part-1" id="toc-formatting-the-plot-part-1">1.2 Formatting the plot part
       1</a></li>
-      <li><a href="#formatting-the-plot-part-2" id="toc-formatting-the-plot-part-2">Formatting the plot part
+      <li><a href="#formatting-the-plot-part-2" id="toc-formatting-the-plot-part-2">1.2 Formatting the plot part
       2</a></li>
       <li><a href="#conclusions" id="toc-conclusions">Conclusions</a></li>
       </ul></li>
@@ -1390,7 +1392,7 @@ to ggplot</a></h2>
     <div id="postamble" data-toggle="wy-nav-shift" class="status">
                   <p class="author"><span class="glyphicon glyphicon-user"></span> Nils
 Indreiten</p>
-                        <p class="date"><span class="glyphicon glyphicon-calendar"></span> 2022-11-21</p>
+                        <p class="date"><span class="glyphicon glyphicon-calendar"></span> 2022-11-25</p>
           </div>
    </div>
      
@@ -1584,34 +1586,47 @@ to HEX and vice versa.</p>
 </div>
 <div id="exercises" class="section level1">
 <h1>Exercises</h1>
-<div id="recreating-the-scatter-plot-as-a-bar-plot" class="section level2">
-<h2>Recreating the scatter plot as a bar plot</h2>
-<p>Recreate the plot in the scatter plot section, however make it a bar
-chart instead. Hint: the data frame you will need to use is
-Segment_Redemptions, fill in the remaining arguments below:</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>points_dist <span class="sc">%&gt;%</span> </span></code></pre></div>
+<div id="number-of-redemptions-by-financial-period" class="section level2">
+<h2>Number of redemptions by financial period</h2>
+<p>For this exercise we will create a graph that breaks down the number
+of redemptions by financial period. Hint: the data frame you will need
+to use is Segment_Redemptions, some data wrangling is required, fill in
+the remaining arguments below:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Data wrangling:</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>Exercise1 <span class="ot">&lt;-</span> Segment_Redemptions <span class="sc">%&gt;%</span> </span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(___) <span class="sc">%&gt;%</span> <span class="co">#Grouping variable, what is it?</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">Total_Redemptions =</span> <span class="fu">sum</span>(___)) <span class="sc">%&gt;%</span>  <span class="co">#What variable are we trying to aggregate?</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">FIN_PERIOD_NO =</span> <span class="fu">as.factor</span>(FIN_PERIOD_NO))</span></code></pre></div>
+</div>
+<div id="building-the-plot" class="section level2">
+<h2>1.1 Building the plot</h2>
+<p>Create the plot for the volume of redemptions by financial period,
+fill in the arguments in the code below:</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>Exercise1 <span class="sc">%&gt;%</span> </span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>()) <span class="sc">%&gt;%</span> <span class="co"># specify the variables you want to visualise</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>()</span></code></pre></div>
 </div>
 <div id="formatting-the-plot-part-1" class="section level2">
-<h2>Formatting the plot part 1</h2>
-<p>Format the y-axis such that the numbers are not in scientific
-notation. Hint: you will need to add the following function to you plot:
+<h2>1.2 Formatting the plot part 1</h2>
+<p>Format the y-axis such that the numbers have commas. Hint: you will
+need to add the following function to you plot:
 <code>scale_y_continuous()</code> and pass a specific value to the label
 that will be the following <code>scales::comma_format()</code>. You will
 need the scales package for this to work!</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>Segment_Redemptions <span class="sc">%&gt;%</span> </span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a> <span class="fu">ggplot</span>()<span class="sc">+</span> <span class="co"># Carry on the second argument from part 1.1 </span></span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="sc">+</span> <span class="co"># Geom_layer</span></span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># scale_y_continuous_layer</span></span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>Exercise1 <span class="sc">%&gt;%</span> </span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a> <span class="fu">ggplot</span>()<span class="sc">+</span> <span class="co"># Carry on the second argument from part 1.1 </span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a> <span class="fu">geom_col</span>() <span class="sc">+</span> <span class="co"># Geom_layer</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># scale_y_continuous_layer</span></span></code></pre></div>
 <p>If you are struggling with the above try the following link for
 inspiration: <a href="https://scales.r-lib.org/" class="uri">https://scales.r-lib.org/</a></p>
 </div>
 <div id="formatting-the-plot-part-2" class="section level2">
-<h2>Formatting the plot part 2</h2>
+<h2>1.2 Formatting the plot part 2</h2>
 <p>Let’s continue formatting the plot by adding and formatting the plot
 title and axis titles. This can be done by adding the labs() function to
 the plot layers.</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Carry on the layers from the previous 2 exercises and add:</span></span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="sc">+</span> <span class="fu">labs</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Carry on the layers from the previous 2 exercises and add:</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="sc">+</span> <span class="fu">labs</span>()</span></code></pre></div>
 <p>run ?labs() in the console to get an idea for the arguments that need
 to be passed to the function to change the labels.</p>
 <p>Finish off the plot by layering a theme onto your plot, call the
@@ -1620,7 +1635,8 @@ to be passed to the function to change the labels.</p>
 <div id="conclusions" class="section level2">
 <h2>Conclusions</h2>
 <p>Can you think of anything else that would make the plot more
-appealing?</p>
+appealing? Which financial period had the highest number of
+redemptions?</p>
 </div>
 </div>
 </div>
