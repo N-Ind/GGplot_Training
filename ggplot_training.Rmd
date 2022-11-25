@@ -18,7 +18,7 @@ editor_options:
 Load relevant packages:
 
 ```{r message=FALSE}
-pacman::p_load(tidyverse,lubridate,ggthemes,tidyquant,readr,readxl)
+pacman::p_load(tidyverse,lubridate,ggthemes,readr,readxl)
 
 # load data:
 Time_series <- read_csv("Time_series.csv")
@@ -70,8 +70,7 @@ Another type of plot is the line plot, it is great for time series data,
 or data that has a temporal element:
 
 ```{r}
-Time_series %>%
-  filter(year(DATE) == 2022) %>% 
+Time_series %>% 
 # Canvas
   ggplot(aes(x = DATE, y = TOTAL_POINTS)) +
   # Geometries
